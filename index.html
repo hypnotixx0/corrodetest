@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wisp Server Interface | Lichology</title>
+    <title>Wisp Browser | Secure Web Proxy</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
     <style>
         * {
             margin: 0;
@@ -14,773 +15,1486 @@
         }
 
         :root {
-            --primary: #4361ee;
-            --secondary: #3a0ca3;
-            --accent: #f72585;
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --secondary: #34a853;
+            --accent: #ea4335;
+            --warning: #fbbc04;
+            --dark: #202124;
+            --dark-gray: #5f6368;
+            --gray: #9aa0a6;
+            --light-gray: #dadce0;
             --light: #f8f9fa;
-            --dark: #212529;
-            --success: #4cc9f0;
-            --warning: #f8961e;
-            --danger: #f94144;
-            --gray: #6c757d;
-            --border-radius: 12px;
-            --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-            --transition: all 0.3s ease;
+            --card-bg: #ffffff;
+            --tab-active: #ffffff;
+            --tab-inactive: #f1f3f4;
+            --border-radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow-heavy: 0 10px 30px rgba(0,0,0,0.15);
+            --transition: all 0.2s ease;
         }
 
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
             color: var(--dark);
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        /* Main Container */
+        .browser-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--light);
         }
 
-        header {
-            text-align: center;
-            padding: 30px 20px;
-            margin-bottom: 30px;
+        /* Top Navigation Bar */
+        .nav-bar {
+            background: white;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            z-index: 100;
         }
 
         .logo {
-            font-size: 2.8rem;
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(45deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            color: var(--gray);
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        .status-bar {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .status-indicator {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 20px;
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            font-weight: 600;
-        }
-
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--gray);
-        }
-
-        .status-dot.connected {
-            background: var(--success);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 30px;
-            box-shadow: var(--box-shadow);
-            transition: var(--transition);
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .card h2 {
+            font-weight: 700;
+            font-size: 1.3rem;
             color: var(--primary);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+        }
+
+        /* Search Container */
+        .search-container {
+            flex: 1;
             display: flex;
             align-items: center;
-            gap: 10px;
+            background: var(--light);
+            border-radius: 24px;
+            padding: 5px 15px;
+            border: 1px solid var(--light-gray);
+            transition: var(--transition);
+            max-width: 800px;
         }
 
-        .form-group {
-            margin-bottom: 20px;
+        .search-container:focus-within {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(26, 115, 232, 0.2);
         }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
+        .search-icon {
+            color: var(--gray);
+            margin-right: 10px;
+        }
+
+        #searchInput {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px 5px;
+            font-size: 16px;
+            outline: none;
             color: var(--dark);
         }
 
-        input, textarea, select {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: var(--transition);
+        .search-buttons {
+            display: flex;
+            gap: 5px;
         }
 
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-        }
-
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-        }
-
-        .btn {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: white;
+        .nav-btn {
+            background: transparent;
             border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            width: 100%;
+            cursor: pointer;
+            color: var(--dark-gray);
+            transition: var(--transition);
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-success {
-            background: linear-gradient(45deg, #2ecc71, #27ae60);
-        }
-
-        .btn-danger {
-            background: linear-gradient(45deg, var(--danger), #c0392b);
-        }
-
-        .response-area {
-            margin-top: 20px;
-        }
-
-        .response-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .response-title {
-            font-weight: 600;
+        .nav-btn:hover {
+            background: var(--light-gray);
             color: var(--dark);
         }
 
-        .copy-btn {
-            background: var(--light);
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            color: var(--gray);
-            transition: var(--transition);
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
 
-        .copy-btn:hover {
+        .nav-btn.active {
             background: var(--primary);
             color: white;
         }
 
-        .response-content {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            min-height: 100px;
-            max-height: 400px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            border: 1px solid #e0e0e0;
+        /* Tabs Container */
+        .tabs-container {
+            background: var(--tab-inactive);
+            display: flex;
+            align-items: center;
+            padding: 10px 15px 0 15px;
+            gap: 5px;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--light-gray);
+            min-height: 48px;
         }
 
-        .success-response {
-            border-left: 4px solid var(--success);
-        }
-
-        .error-response {
-            border-left: 4px solid var(--danger);
-        }
-
-        .method-selector {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+        .tab {
+            background: var(--tab-inactive);
+            border: 1px solid var(--light-gray);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            padding: 10px 20px;
+            min-width: 180px;
+            max-width: 300px;
+            display: flex;
+            align-items: center;
             gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .method-btn {
-            padding: 12px;
-            text-align: center;
-            background: var(--light);
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
+            position: relative;
             transition: var(--transition);
         }
 
-        .method-btn.active {
-            background: var(--primary);
-            color: white;
+        .tab.active {
+            background: var(--tab-active);
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+            z-index: 2;
+        }
+
+        .tab:hover:not(.active) {
+            background: #e8eaed;
+        }
+
+        .tab-favicon {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .tab-title {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 14px;
+            color: var(--dark-gray);
+        }
+
+        .tab.active .tab-title {
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .tab-close {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .tab:hover .tab-close {
+            opacity: 1;
+        }
+
+        .tab-close:hover {
+            background: var(--light-gray);
+        }
+
+        .new-tab-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 2px dashed var(--light-gray);
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+            margin-left: 5px;
+        }
+
+        .new-tab-btn:hover {
             border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(26, 115, 232, 0.05);
         }
 
-        .method-btn:hover:not(.active) {
-            background: #e9ecef;
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            position: relative;
+            background: white;
+            overflow: hidden;
         }
 
-        .loading {
+        .page-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: none;
-            text-align: center;
-            padding: 20px;
+            flex-direction: column;
+        }
+
+        .page-container.active {
+            display: flex;
+        }
+
+        /* Iframe Container */
+        .iframe-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        /* Loading Overlay */
+        .page-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
         }
 
         .spinner {
             width: 40px;
             height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
+            border: 3px solid var(--light-gray);
+            border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
+            margin-bottom: 15px;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
 
-        footer {
+        /* Home Page */
+        .home-page {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
             text-align: center;
-            padding: 30px;
-            color: var(--gray);
-            font-size: 0.9rem;
-            border-top: 1px solid #e0e0e0;
+        }
+
+        .welcome-title {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .welcome-subtitle {
+            color: var(--dark-gray);
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
             margin-top: 40px;
         }
 
-        .server-url {
+        .quick-link {
             background: white;
-            padding: 15px;
+            padding: 20px;
             border-radius: var(--border-radius);
-            font-family: 'Courier New', monospace;
+            text-decoration: none;
+            color: var(--dark);
+            transition: var(--transition);
+            border: 1px solid var(--light-gray);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quick-link:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-heavy);
+            border-color: var(--primary);
+        }
+
+        .quick-link i {
+            font-size: 2rem;
             color: var(--primary);
-            font-weight: 600;
-            margin: 20px 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 10px;
         }
 
-        .notification {
+        .quick-link-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .quick-link-desc {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* DuckDuckGo Search Results */
+        .search-results {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .result-item {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--light-gray);
+            background: white;
+            transition: var(--transition);
+        }
+
+        .result-item:hover {
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .result-title {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+        }
+
+        .result-title a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .result-title a:hover {
+            text-decoration: underline;
+        }
+
+        .result-url {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .result-snippet {
+            color: var(--dark-gray);
+            line-height: 1.5;
+        }
+
+        /* Bottom Status Bar */
+        .status-bar {
+            background: white;
+            padding: 8px 15px;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gray);
+        }
+
+        .status-dot.connected {
+            background: var(--secondary);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Settings Modal */
+        .modal {
+            display: none;
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
             background: white;
             border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            transform: translateX(150%);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-            border-left: 4px solid var(--success);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-heavy);
         }
 
-        .notification.show {
-            transform: translateX(0);
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .notification.error {
-            border-left-color: var(--danger);
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .setting-item {
+            margin-bottom: 20px;
+        }
+
+        .setting-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .setting-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        /* Error Page */
+        .error-page {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .error-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .error-message {
+            color: var(--dark-gray);
+            margin-bottom: 30px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-bar {
+                padding: 10px;
+            }
+            
+            .logo span {
+                display: none;
+            }
+            
+            .search-container {
+                margin: 0 5px;
+            }
+            
+            .tab {
+                min-width: 140px;
+                padding: 8px 12px;
+            }
+            
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--light-gray);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gray);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
+    <div class="browser-container">
+        <!-- Top Navigation Bar -->
+        <div class="nav-bar">
             <div class="logo">
-                <i class="fas fa-bolt"></i>
+                <i class="fas fa-globe"></i>
+                <span>Wisp Browser</span>
             </div>
-            <h1>Wisp Server Proxy</h1>
-            <p class="subtitle">
-                A modern interface for interacting with your Wisp server at lichology.com
-            </p>
             
-            <div class="server-url">
-                <i class="fas fa-server"></i> wss://lichology.com/wisp/
+            <div class="nav-btn" id="backBtn" title="Back">
+                <i class="fas fa-arrow-left"></i>
             </div>
-        </header>
+            <div class="nav-btn" id="forwardBtn" title="Forward">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+            <div class="nav-btn" id="refreshBtn" title="Refresh">
+                <i class="fas fa-redo"></i>
+            </div>
+            
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Search with DuckDuckGo or enter URL...">
+                <div class="search-buttons">
+                    <button class="nav-btn" id="goBtn" title="Go">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="nav-btn" id="homeBtn" title="Home">
+                <i class="fas fa-home"></i>
+            </div>
+            <div class="nav-btn" id="newTabBtn" title="New Tab">
+                <i class="fas fa-plus"></i>
+            </div>
+            <div class="nav-btn" id="settingsBtn" title="Settings">
+                <i class="fas fa-cog"></i>
+            </div>
+        </div>
 
+        <!-- Tabs Bar -->
+        <div class="tabs-container" id="tabsContainer">
+            <!-- Tabs will be generated here -->
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area" id="contentArea">
+            <!-- Pages will be dynamically added here -->
+        </div>
+
+        <!-- Status Bar -->
         <div class="status-bar">
-            <div class="status-indicator">
-                <div class="status-dot" id="statusDot"></div>
-                <span id="statusText">Connecting...</span>
+            <div class="status-item">
+                <div class="connection-status">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Connecting to Wisp...</span>
+                </div>
+            </div>
+            <div class="status-item">
+                <span id="currentUrl">about:home</span>
+            </div>
+            <div class="status-item">
+                <span id="pageInfo">Secure Connection</span>
             </div>
         </div>
+    </div>
 
-        <div class="main-content">
-            <!-- Request Card -->
-            <div class="card">
-                <h2><i class="fas fa-paper-plane"></i> Send Request</h2>
-                
-                <div class="method-selector" id="methodSelector">
-                    <div class="method-btn active" data-method="GET">GET</div>
-                    <div class="method-btn" data-method="POST">POST</div>
-                    <div class="method-btn" data-method="PUT">PUT</div>
-                    <div class="method-btn" data-method="DELETE">DELETE</div>
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Browser Settings</div>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <label class="setting-label">Wisp Server URL</label>
+                    <input type="text" class="setting-control" id="wispServerUrl" value="wss://lichology.com/wisp/">
+                    <small>WebSocket URL for the Wisp proxy server</small>
                 </div>
-
-                <div class="form-group">
-                    <label for="endpoint"><i class="fas fa-link"></i> Endpoint</label>
-                    <input type="text" id="endpoint" placeholder="/api/data" value="/">
+                <div class="setting-item">
+                    <label class="setting-label">Search Engine</label>
+                    <select class="setting-control" id="searchEngine">
+                        <option value="duckduckgo">DuckDuckGo</option>
+                        <option value="google">Google</option>
+                        <option value="bing">Bing</option>
+                    </select>
                 </div>
-
-                <div class="form-group">
-                    <label for="requestBody"><i class="fas fa-edit"></i> Request Body (JSON)</label>
-                    <textarea id="requestBody" placeholder='{"key": "value"}'></textarea>
+                <div class="setting-item">
+                    <label class="setting-label">Home Page</label>
+                    <input type="text" class="setting-control" id="homePageUrl" value="about:home">
                 </div>
-
-                <div class="form-group">
-                    <label for="headers"><i class="fas fa-heading"></i> Headers (JSON)</label>
-                    <textarea id="headers" placeholder='{"Content-Type": "application/json"}'></textarea>
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <input type="checkbox" id="enableJavascript"> Enable JavaScript
+                    </label>
                 </div>
-
-                <button class="btn" id="sendRequest">
-                    <i class="fas fa-rocket"></i> Send Request
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <input type="checkbox" id="blockAds"> Block Ads
+                    </label>
+                </div>
+                <button class="nav-btn active" id="saveSettings" style="width: 100%; margin-top: 20px;">
+                    Save Settings
                 </button>
-
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <p>Sending request to Wisp server...</p>
-                </div>
-            </div>
-
-            <!-- Response Card -->
-            <div class="card">
-                <h2><i class="fas fa-reply"></i> Server Response</h2>
-                
-                <div class="response-area">
-                    <div class="response-header">
-                        <div class="response-title">
-                            <i class="fas fa-code"></i> Response
-                        </div>
-                        <button class="copy-btn" id="copyResponse">
-                            <i class="fas fa-copy"></i> Copy
-                        </button>
-                    </div>
-                    <div class="response-content" id="responseContent">
-                        Response will appear here...
-                    </div>
-                </div>
-
-                <div style="margin-top: 30px;">
-                    <h3><i class="fas fa-history"></i> Request History</h3>
-                    <div id="requestHistory" style="margin-top: 15px;">
-                        <!-- History items will be added here -->
-                    </div>
-                </div>
             </div>
         </div>
-
-        <footer>
-            <p>Wisp Server Proxy Interface | Connected to: wss://lichology.com/wisp/</p>
-            <p>This is a static frontend that proxies requests to your Wisp server</p>
-            <p style="margin-top: 10px; font-size: 0.8rem;">
-                <i class="fas fa-shield-alt"></i> All requests are sent directly from your browser to the Wisp server
-            </p>
-        </footer>
     </div>
 
-    <!-- Notification -->
-    <div class="notification" id="notification">
-        <span id="notificationText">Copied to clipboard!</span>
-    </div>
+    <!-- Templates -->
+    <template id="tabTemplate">
+        <div class="tab">
+            <img class="tab-favicon" src="" alt="">
+            <div class="tab-title">New Tab</div>
+            <div class="tab-close">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+    </template>
+
+    <template id="pageTemplate">
+        <div class="page-container">
+            <div class="page-loading">
+                <div class="spinner"></div>
+                <p>Loading page...</p>
+            </div>
+            <div class="iframe-container">
+                <iframe sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals" 
+                        allow="geolocation; microphone; camera"></iframe>
+            </div>
+        </div>
+    </template>
 
     <script>
-        // Wisp Server Configuration
-        const WISP_SERVER = "wss://lichology.com/wisp/";
-        let socket = null;
-        let isConnected = false;
-        let requestCounter = 0;
-
-        // DOM Elements
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
-        const methodButtons = document.querySelectorAll('.method-btn');
-        const sendRequestBtn = document.getElementById('sendRequest');
-        const responseContent = document.getElementById('responseContent');
-        const copyResponseBtn = document.getElementById('copyResponse');
-        const loadingElement = document.getElementById('loading');
-        const notification = document.getElementById('notification');
-        const notificationText = document.getElementById('notificationText');
-        const requestHistory = document.getElementById('requestHistory');
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeWebSocket();
-            setupEventListeners();
-            loadRequestHistory();
-        });
-
-        // WebSocket Connection
-        function initializeWebSocket() {
-            try {
-                socket = new WebSocket(WISP_SERVER);
+        class WispBrowser {
+            constructor() {
+                this.wispServer = "wss://lichology.com/wisp/";
+                this.socket = null;
+                this.isConnected = false;
+                this.tabs = [];
+                this.activeTabId = null;
+                this.history = {};
+                this.settings = this.loadSettings();
+                this.searchEngine = 'duckduckgo';
                 
-                socket.onopen = function() {
-                    isConnected = true;
-                    statusDot.classList.add('connected');
-                    statusText.textContent = 'Connected to Wisp Server';
-                    showNotification('Connected to Wisp server successfully!', 'success');
+                this.init();
+            }
+
+            init() {
+                this.initElements();
+                this.initWebSocket();
+                this.initEventListeners();
+                this.createNewTab('about:home', 'Home');
+                this.updateStatus();
+            }
+
+            initElements() {
+                this.elements = {
+                    tabsContainer: document.getElementById('tabsContainer'),
+                    contentArea: document.getElementById('contentArea'),
+                    searchInput: document.getElementById('searchInput'),
+                    backBtn: document.getElementById('backBtn'),
+                    forwardBtn: document.getElementById('forwardBtn'),
+                    refreshBtn: document.getElementById('refreshBtn'),
+                    goBtn: document.getElementById('goBtn'),
+                    homeBtn: document.getElementById('homeBtn'),
+                    newTabBtn: document.getElementById('newTabBtn'),
+                    settingsBtn: document.getElementById('settingsBtn'),
+                    statusDot: document.getElementById('statusDot'),
+                    statusText: document.getElementById('statusText'),
+                    currentUrl: document.getElementById('currentUrl'),
+                    pageInfo: document.getElementById('pageInfo'),
+                    settingsModal: document.getElementById('settingsModal'),
+                    closeModal: document.getElementById('closeModal'),
+                    saveSettings: document.getElementById('saveSettings'),
+                    wispServerUrl: document.getElementById('wispServerUrl')
+                };
+            }
+
+            initWebSocket() {
+                try {
+                    this.socket = new WebSocket(this.wispServer);
+                    
+                    this.socket.onopen = () => {
+                        this.isConnected = true;
+                        this.elements.statusDot.classList.add('connected');
+                        this.elements.statusText.textContent = 'Connected to Wisp';
+                        console.log('Connected to Wisp server');
+                    };
+                    
+                    this.socket.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            this.handleWispMessage(data);
+                        } catch (e) {
+                            console.error('Error parsing Wisp message:', e);
+                        }
+                    };
+                    
+                    this.socket.onclose = () => {
+                        this.isConnected = false;
+                        this.elements.statusDot.classList.remove('connected');
+                        this.elements.statusText.textContent = 'Disconnected';
+                        setTimeout(() => this.initWebSocket(), 3000);
+                    };
+                    
+                    this.socket.onerror = (error) => {
+                        console.error('WebSocket error:', error);
+                        this.elements.statusText.textContent = 'Connection Error';
+                    };
+                } catch (error) {
+                    console.error('Failed to connect to Wisp:', error);
+                }
+            }
+
+            initEventListeners() {
+                // Navigation buttons
+                this.elements.backBtn.addEventListener('click', () => this.navigateBack());
+                this.elements.forwardBtn.addEventListener('click', () => this.navigateForward());
+                this.elements.refreshBtn.addEventListener('click', () => this.refreshPage());
+                this.elements.goBtn.addEventListener('click', () => this.performSearch());
+                this.elements.homeBtn.addEventListener('click', () => this.goHome());
+                this.elements.newTabBtn.addEventListener('click', () => this.createNewTab('about:home', 'New Tab'));
+                this.elements.settingsBtn.addEventListener('click', () => this.showSettings());
+                
+                // Search input
+                this.elements.searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.performSearch();
+                });
+                
+                // Settings modal
+                this.elements.closeModal.addEventListener('click', () => this.hideSettings());
+                this.elements.saveSettings.addEventListener('click', () => this.saveSettings());
+                
+                // Close modal on background click
+                this.elements.settingsModal.addEventListener('click', (e) => {
+                    if (e.target === this.elements.settingsModal) this.hideSettings();
+                });
+                
+                // Load settings into form
+                this.elements.wispServerUrl.value = this.wispServer;
+            }
+
+            // Tab Management
+            createNewTab(url = 'about:home', title = 'New Tab') {
+                const tabId = 'tab_' + Date.now();
+                
+                // Create tab element
+                const tabTemplate = document.getElementById('tabTemplate').content.cloneNode(true);
+                const tabElement = tabTemplate.querySelector('.tab');
+                const favicon = tabElement.querySelector('.tab-favicon');
+                const tabTitle = tabElement.querySelector('.tab-title');
+                const closeBtn = tabElement.querySelector('.tab-close');
+                
+                tabElement.dataset.tabId = tabId;
+                tabTitle.textContent = title;
+                favicon.src = this.getFaviconUrl(url);
+                
+                // Add event listeners
+                tabElement.addEventListener('click', (e) => {
+                    if (!e.target.closest('.tab-close')) {
+                        this.switchTab(tabId);
+                    }
+                });
+                
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.closeTab(tabId);
+                });
+                
+                // Create page element
+                const pageTemplate = document.getElementById('pageTemplate').content.cloneNode(true);
+                const pageElement = pageTemplate.querySelector('.page-container');
+                pageElement.id = `page-${tabId}`;
+                
+                // Add to DOM
+                this.elements.tabsContainer.insertBefore(tabElement, this.elements.tabsContainer.lastElementChild);
+                this.elements.contentArea.appendChild(pageElement);
+                
+                // Add to tabs array
+                const tab = {
+                    id: tabId,
+                    url: url,
+                    title: title,
+                    history: [],
+                    historyIndex: -1,
+                    favicon: this.getFaviconUrl(url),
+                    element: tabElement,
+                    pageElement: pageElement,
+                    loading: false
                 };
                 
-                socket.onmessage = function(event) {
-                    try {
-                        const data = JSON.parse(event.data);
-                        handleServerMessage(data);
-                    } catch (e) {
-                        console.error('Error parsing server message:', e);
+                this.tabs.push(tab);
+                this.switchTab(tabId);
+                this.navigateInTab(tabId, url, false);
+                
+                return tabId;
+            }
+
+            switchTab(tabId) {
+                // Update active tab
+                this.tabs.forEach(tab => {
+                    const isActive = tab.id === tabId;
+                    tab.element.classList.toggle('active', isActive);
+                    tab.pageElement.classList.toggle('active', isActive);
+                });
+                
+                this.activeTabId = tabId;
+                const activeTab = this.getActiveTab();
+                
+                // Update UI
+                if (activeTab) {
+                    this.elements.searchInput.value = activeTab.url === 'about:home' ? '' : activeTab.url;
+                    this.elements.currentUrl.textContent = activeTab.url;
+                    this.updateNavigationButtons();
+                }
+            }
+
+            closeTab(tabId) {
+                if (this.tabs.length <= 1) {
+                    alert('Cannot close the last tab');
+                    return;
+                }
+                
+                const tabIndex = this.tabs.findIndex(t => t.id === tabId);
+                if (tabIndex === -1) return;
+                
+                const tab = this.tabs[tabIndex];
+                
+                // Remove from DOM
+                tab.element.remove();
+                tab.pageElement.remove();
+                
+                // Remove from array
+                this.tabs.splice(tabIndex, 1);
+                
+                // Switch to another tab if closing active tab
+                if (tabId === this.activeTabId) {
+                    const newActiveIndex = Math.min(tabIndex, this.tabs.length - 1);
+                    this.switchTab(this.tabs[newActiveIndex].id);
+                }
+            }
+
+            getActiveTab() {
+                return this.tabs.find(t => t.id === this.activeTabId);
+            }
+
+            // Navigation
+            performSearch() {
+                const query = this.elements.searchInput.value.trim();
+                if (!query) return;
+                
+                const activeTab = this.getActiveTab();
+                if (!activeTab) return;
+                
+                // Check if it's a URL
+                if (this.isValidUrl(query)) {
+                    this.navigateInTab(activeTab.id, this.normalizeUrl(query));
+                } else {
+                    // Perform search
+                    const searchUrl = this.getSearchUrl(query);
+                    this.navigateInTab(activeTab.id, searchUrl);
+                }
+            }
+
+            getSearchUrl(query) {
+                const encodedQuery = encodeURIComponent(query);
+                switch(this.searchEngine) {
+                    case 'duckduckgo':
+                        return `https://html.duckduckgo.com/html/?q=${encodedQuery}`;
+                    case 'google':
+                        return `https://www.google.com/search?q=${encodedQuery}`;
+                    case 'bing':
+                        return `https://www.bing.com/search?q=${encodedQuery}`;
+                    default:
+                        return `https://html.duckduckgo.com/html/?q=${encodedQuery}`;
+                }
+            }
+
+            navigateInTab(tabId, url, addToHistory = true) {
+                const tab = this.tabs.find(t => t.id === tabId);
+                if (!tab) return;
+                
+                // Normalize URL
+                url = this.normalizeUrl(url);
+                
+                // Update tab state
+                tab.url = url;
+                tab.loading = true;
+                
+                // Add to history
+                if (addToHistory) {
+                    tab.history = tab.history.slice(0, tab.historyIndex + 1);
+                    tab.history.push(url);
+                    tab.historyIndex = tab.history.length - 1;
+                }
+                
+                // Update UI
+                this.updateTabInfo(tab);
+                this.updateNavigationButtons();
+                
+                // Show loading
+                const loadingElement = tab.pageElement.querySelector('.page-loading');
+                const iframe = tab.pageElement.querySelector('iframe');
+                
+                loadingElement.style.display = 'flex';
+                iframe.style.display = 'none';
+                
+                // Handle special URLs
+                if (url === 'about:home') {
+                    this.showHomePage(tab);
+                    tab.loading = false;
+                    return;
+                }
+                
+                // Use Wisp proxy for external URLs
+                if (this.isConnected && this.socket) {
+                    this.proxyRequest(tab, url);
+                } else {
+                    // Fallback to direct loading if Wisp is not available
+                    this.loadDirectly(tab, url);
+                }
+            }
+
+            proxyRequest(tab, url) {
+                const requestId = 'req_' + Date.now();
+                
+                const request = {
+                    id: requestId,
+                    method: 'GET',
+                    url: url,
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
                     }
                 };
                 
-                socket.onclose = function() {
-                    isConnected = false;
-                    statusDot.classList.remove('connected');
-                    statusText.textContent = 'Disconnected from Server';
-                    showNotification('Disconnected from Wisp server. Reconnecting...', 'error');
-                    
-                    // Attempt to reconnect after 3 seconds
-                    setTimeout(initializeWebSocket, 3000);
+                // Store callback for response
+                this.pendingRequests = this.pendingRequests || {};
+                this.pendingRequests[requestId] = (response) => {
+                    this.handleProxyResponse(tab, url, response);
                 };
                 
-                socket.onerror = function(error) {
-                    console.error('WebSocket error:', error);
-                    statusText.textContent = 'Connection Error';
-                    showNotification('Connection error. Check server URL.', 'error');
-                };
-            } catch (error) {
-                console.error('Failed to initialize WebSocket:', error);
-                showNotification('Failed to connect to Wisp server', 'error');
-            }
-        }
-
-        // Event Listeners
-        function setupEventListeners() {
-            // Method selector
-            methodButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    methodButtons.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-
-            // Send request
-            sendRequestBtn.addEventListener('click', sendRequest);
-
-            // Copy response
-            copyResponseBtn.addEventListener('click', copyResponse);
-
-            // Enter key in endpoint field
-            document.getElementById('endpoint').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') sendRequest();
-            });
-        }
-
-        // Send Request Function
-        function sendRequest() {
-            if (!isConnected) {
-                showNotification('Not connected to server. Please wait...', 'error');
-                return;
-            }
-
-            const method = document.querySelector('.method-btn.active').dataset.method;
-            const endpoint = document.getElementById('endpoint').value.trim() || '/';
-            let requestBody = document.getElementById('requestBody').value.trim();
-            let headers = document.getElementById('headers').value.trim();
-
-            // Validate JSON if provided
-            try {
-                if (requestBody) {
-                    requestBody = JSON.parse(requestBody);
-                } else {
-                    requestBody = {};
-                }
-            } catch (e) {
-                showNotification('Invalid JSON in request body', 'error');
-                return;
-            }
-
-            try {
-                if (headers) {
-                    headers = JSON.parse(headers);
-                } else {
-                    headers = {};
-                }
-            } catch (e) {
-                showNotification('Invalid JSON in headers', 'error');
-                return;
-            }
-
-            // Create request object
-            const request = {
-                id: `req_${Date.now()}_${++requestCounter}`,
-                method: method,
-                endpoint: endpoint,
-                headers: headers,
-                body: requestBody,
-                timestamp: new Date().toISOString()
-            };
-
-            // Show loading
-            loadingElement.style.display = 'block';
-            sendRequestBtn.disabled = true;
-
-            // Send via WebSocket
-            socket.send(JSON.stringify(request));
-
-            // Add to history
-            addToHistory(request);
-
-            // Set timeout for response
-            setTimeout(() => {
-                if (loadingElement.style.display === 'block') {
-                    loadingElement.style.display = 'none';
-                    sendRequestBtn.disabled = false;
-                    showNotification('Request timeout. No response received.', 'error');
-                }
-            }, 30000);
-        }
-
-        // Handle Server Response
-        function handleServerMessage(data) {
-            loadingElement.style.display = 'none';
-            sendRequestBtn.disabled = false;
-
-            // Format the response
-            let formattedResponse;
-            try {
-                formattedResponse = JSON.stringify(data, null, 2);
-            } catch (e) {
-                formattedResponse = String(data);
-            }
-
-            // Update response display
-            responseContent.textContent = formattedResponse;
-            responseContent.className = 'response-content success-response';
-
-            // Update last request in history
-            updateLastHistoryItem(data);
-        }
-
-        // Request History Management
-        function addToHistory(request) {
-            const historyItem = {
-                id: request.id,
-                method: request.method,
-                endpoint: request.endpoint,
-                timestamp: new Date().toLocaleTimeString(),
-                status: 'pending'
-            };
-
-            const historyElement = document.createElement('div');
-            historyElement.className = 'history-item';
-            historyElement.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; 
-                            padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
-                    <div>
-                        <span style="font-weight: 600; color: ${getMethodColor(request.method)}">
-                            ${request.method}
-                        </span>
-                        <span style="margin-left: 10px;">${request.endpoint}</span>
-                    </div>
-                    <div style="font-size: 0.9rem; color: var(--gray);">
-                        ${historyItem.timestamp}
-                        <span id="status-${request.id}" style="margin-left: 10px;">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </span>
-                    </div>
-                </div>
-            `;
-
-            // Add click to reuse request
-            historyElement.addEventListener('click', () => {
-                document.querySelector('.method-btn.active').classList.remove('active');
-                document.querySelector(`.method-btn[data-method="${request.method}"]`).classList.add('active');
-                document.getElementById('endpoint').value = request.endpoint;
-                document.getElementById('requestBody').value = JSON.stringify(request.body, null, 2);
-                document.getElementById('headers').value = JSON.stringify(request.headers, null, 2);
-            });
-
-            requestHistory.insertBefore(historyElement, requestHistory.firstChild);
-            
-            // Save to localStorage
-            saveHistoryToStorage();
-        }
-
-        function updateLastHistoryItem(response) {
-            const historyItems = requestHistory.querySelectorAll('.history-item');
-            if (historyItems.length > 0) {
-                const latestItem = historyItems[0];
-                const statusSpan = latestItem.querySelector(`[id^="status-"]`);
-                if (statusSpan) {
-                    statusSpan.innerHTML = '<i class="fas fa-check" style="color: var(--success);"></i>';
-                }
-            }
-        }
-
-        function saveHistoryToStorage() {
-            const items = [];
-            document.querySelectorAll('.history-item').forEach(item => {
-                const method = item.querySelector('span[style*="font-weight: 600"]').textContent.trim();
-                const endpoint = item.querySelector('span:nth-child(2)').textContent.trim();
-                const timestamp = item.querySelector('div > div:nth-child(2)').textContent.split(' ')[0];
+                // Send request via WebSocket
+                this.socket.send(JSON.stringify(request));
                 
-                items.push({ method, endpoint, timestamp });
-            });
-            
-            localStorage.setItem('wispRequestHistory', JSON.stringify(items.slice(0, 10)));
-        }
+                // Timeout after 30 seconds
+                setTimeout(() => {
+                    if (this.pendingRequests[requestId]) {
+                        delete this.pendingRequests[requestId];
+                        this.showErrorPage(tab, 'Request timeout');
+                    }
+                }, 30000);
+            }
 
-        function loadRequestHistory() {
-            const savedHistory = localStorage.getItem('wispRequestHistory');
-            if (savedHistory) {
+            handleProxyResponse(tab, url, response) {
+                tab.loading = false;
+                
+                if (response.error) {
+                    this.showErrorPage(tab, response.error);
+                    return;
+                }
+                
+                // Update tab with page content
+                this.updateTabContent(tab, response.body || '', response.headers || {});
+                
+                // Parse and set page title
+                const titleMatch = response.body.match(/<title[^>]*>([^<]+)<\/title>/i);
+                if (titleMatch) {
+                    tab.title = titleMatch[1];
+                } else {
+                    tab.title = new URL(url).hostname;
+                }
+                
+                this.updateTabInfo(tab);
+            }
+
+            updateTabContent(tab, html, headers) {
+                const iframe = tab.pageElement.querySelector('iframe');
+                const loadingElement = tab.pageElement.querySelector('.page-loading');
+                
+                // Create a complete HTML document
+                const doc = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <base href="${tab.url}">
+                        <style>
+                            /* Basic styles for proxied content */
+                            body { 
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                                max-width: 1200px;
+                                margin: 0 auto;
+                                padding: 20px;
+                                line-height: 1.6;
+                            }
+                            img { max-width: 100%; height: auto; }
+                            a { color: #1a73e8; text-decoration: none; }
+                            a:hover { text-decoration: underline; }
+                        </style>
+                    </head>
+                    <body>${html}</body>
+                    </html>
+                `;
+                
+                // Write to iframe
+                iframe.srcdoc = doc;
+                
+                // Show iframe
+                loadingElement.style.display = 'none';
+                iframe.style.display = 'block';
+                
+                // Update iframe events
+                iframe.onload = () => {
+                    // Inject click handlers for links
+                    this.injectLinkHandlers(iframe, tab.id);
+                };
+            }
+
+            injectLinkHandlers(iframe, tabId) {
                 try {
-                    const history = JSON.parse(savedHistory);
-                    history.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = 'history-item';
-                        div.innerHTML = `
-                            <div style="display: flex; justify-content: space-between; align-items: center; 
-                                        padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
-                                <div>
-                                    <span style="font-weight: 600; color: ${getMethodColor(item.method)}">
-                                        ${item.method}
-                                    </span>
-                                    <span style="margin-left: 10px;">${item.endpoint}</span>
-                                </div>
-                                <div style="font-size: 0.9rem; color: var(--gray);">
-                                    ${item.timestamp}
-                                    <span style="margin-left: 10px;">
-                                        <i class="fas fa-check" style="color: var(--success);"></i>
-                                    </span>
-                                </div>
-                            </div>
-                        `;
-                        requestHistory.appendChild(div);
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    
+                    // Make all links open in the same tab via Wisp
+                    iframeDoc.querySelectorAll('a[href]').forEach(link => {
+                        const originalHref = link.getAttribute('href');
+                        if (originalHref && !originalHref.startsWith('#')) {
+                            link.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                const absoluteUrl = new URL(originalHref, iframeDoc.baseURI).href;
+                                this.navigateInTab(tabId, absoluteUrl);
+                            });
+                        }
                     });
                 } catch (e) {
-                    console.error('Error loading history:', e);
+                    console.log('Could not inject link handlers:', e);
                 }
             }
-        }
 
-        function getMethodColor(method) {
-            switch(method) {
-                case 'GET': return '#2ecc71';
-                case 'POST': return '#3498db';
-                case 'PUT': return '#f39c12';
-                case 'DELETE': return '#e74c3c';
-                default: return 'var(--gray)';
+            loadDirectly(tab, url) {
+                const iframe = tab.pageElement.querySelector('iframe');
+                const loadingElement = tab.pageElement.querySelector('.page-loading');
+                
+                // Load directly in iframe
+                iframe.src = url;
+                
+                iframe.onload = () => {
+                    tab.loading = false;
+                    loadingElement.style.display = 'none';
+                    iframe.style.display = 'block';
+                    
+                    // Try to get title from iframe
+                    try {
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        tab.title = iframeDoc.title || new URL(url).hostname;
+                        this.updateTabInfo(tab);
+                    } catch (e) {
+                        console.log('Could not access iframe document:', e);
+                    }
+                };
+                
+                iframe.onerror = () => {
+                    tab.loading = false;
+                    this.showErrorPage(tab, 'Failed to load page');
+                };
+            }
+
+            showHomePage(tab) {
+                const iframe = tab.pageElement.querySelector('iframe');
+                const loadingElement = tab.pageElement.querySelector('.page-loading');
+                
+                const homeHtml = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Wisp Browser Home</title>
+                        <style>
+                            body {
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                min-height: 100vh;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                text-align: center;
+                                padding: 20px;
+                            }
+                            .welcome {
+                                background: rgba(255,255,255,0.1);
+                                backdrop-filter: blur(10px);
+                                border-radius: 20px;
+                                padding: 40px;
+                                max-width: 800px;
+                                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                            }
+                            h1 {
+                                font-size: 3rem;
+                                margin-bottom: 10px;
+                            }
+                            .subtitle {
+                                font-size: 1.2rem;
+                                opacity: 0.9;
+                                margin-bottom: 30px;
+                            }
+                            .quick-stats {
+                                display: grid;
+                                grid-template-columns: repeat(3, 1fr);
+                                gap: 20px;
+                                margin-top: 40px;
+                            }
+                            .stat {
+                                background: rgba(255,255,255,0.15);
+                                padding: 20px;
+                                border-radius: 10px;
+                            }
+                            .stat-value {
+                                font-size: 2rem;
+                                font-weight: bold;
+                                display: block;
+                            }
+                            .stat-label {
+                                font-size: 0.9rem;
+                                opacity: 0.8;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="welcome">
+                            <h1>Wisp Browser</h1>
+                            <div class="subtitle">Secure browsing powered by Wisp Proxy</div>
+                            <p>Enter a URL or search term in the address bar above to begin browsing.</p>
+                            <div class="quick-stats">
+                                <div class="stat">
+                                    <span class="stat-value" id="tabCount">${this.tabs.length}</span>
+                                    <span class="stat-label">Open Tabs</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-value" id="connectionStatus">${this.isConnected ? '✓' : '✗'}</span>
+                                    <span class="stat-label">Wisp Connection</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-value">🌐</span>
+                                    <span class="stat-label">Secure Proxy</span>
+                                </div>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `;
+                
+                iframe.srcdoc = homeHtml;
+                loadingElement.style.display = 'none';
+                iframe.style.display = 'block';
+                tab.title = 'Home';
+                this.updateTabInfo(tab);
+            }
+
+            showErrorPage(tab, error) {
+                const iframe = tab.pageElement.querySelector('iframe');
+                const loadingElement = tab.pageElement.querySelector('.page-loading');
+                
+                const errorHtml = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <style>
+                            body {
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                min-height: 100vh;
+                                padding: 20px;
+                                text-align: center;
+                                background: #f8f9fa;
+                                color: #202124;
+                            }
+                            .error-icon {
+                                font-size: 4rem;
+                                color: #ea4335;
+                                margin-bottom: 20px;
+                            }
+                            h1 {
+                                font-size: 2rem;
+                                margin-bottom: 10px;
+                            }
+                            .error-message {
+                                color: #5f6368;
+                                margin-bottom: 30px;
+                                max-width: 500px;
+                            }
+                            button {
+                                background: #1a73e8;
+                                color: white;
+                                border: none;
+                                padding: 12px 24px;
+                                border-radius: 8px;
+                                font-size: 16px;
+                                cursor: pointer;
+                                transition: background 0.2s;
+                            }
+                            button:hover {
+                                background: #0d47a1;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="error-icon">⚠️</div>
+                        <h1>Unable to load page</h1>
+                        <div class="error-message">${error}</div>
+                        <button onclick="window.top.postMessage('reload', '*')">Try Again</button>
+                    </body>
+                    </html>
+                `;
+                
+                iframe.srcdoc = errorHtml;
+                loadingElement.style.display = 'none';
+                iframe.style.display = 'block';
+                tab.title = 'Error';
+                this.updateTabInfo(tab);
+            }
+
+            // Navigation controls
+            navigateBack() {
+                const tab = this.getActiveTab();
+                if (!tab || tab.historyIndex <= 0) return;
+                
+                tab.historyIndex--;
+                const url = tab.history[tab.historyIndex];
+                this.navigateInTab(tab.id, url, false);
+            }
+
+            navigateForward() {
+                const tab = this.getActiveTab();
+                if (!tab || tab.historyIndex >= tab.history.length - 1) return;
+                
+                tab.historyIndex++;
+                const url = tab.history[tab.historyIndex];
+                this.navigateInTab(tab.id, url, false);
+            }
+
+            refreshPage() {
+                const tab = this.getActiveTab();
+                if (!tab) return;
+                
+                this.navigateInTab(tab.id, tab.url, false);
+            }
+
+            goHome() {
+                const activeTab = this.getActiveTab();
+                if (activeTab) {
+                    this.navigateInTab(activeTab.id, 'about:home');
+                }
+            }
+
+            updateNavigationButtons() {
+                const tab = this.getActiveTab();
+                if (!tab) return;
+                
+                this.elements.backBtn.disabled = tab.historyIndex <= 0;
+                this.elements.forwardBtn.disabled = tab.historyIndex >= tab.history.length - 1;
+            }
+
+            updateTabInfo(tab) {
+                // Update tab element
+                const favicon = tab.element.querySelector('.tab-favicon');
+                const title = tab.element.querySelector('.tab-title');
+                
+                favicon.src = this.getFaviconUrl(tab.url);
+                title.textContent = tab.title || 'Loading...';
+                
+                // Update address bar if this is the active tab
+                if (tab.id === this.activeTabId) {
+                    this.elements.searchInput.value = tab.url === 'about:home' ? '' : tab.url;
+                    this.elements.currentUrl.textContent = tab.url;
+                    this.elements.pageInfo.textContent = tab.url.startsWith('https') ? 'Secure Connection' : 'Standard Connection';
+                }
+            }
+
+            // Utilities
+            isValidUrl(string) {
+                try {
+                    const url = new URL(string);
+                    return ['http:', 'https:'].includes(url.protocol);
+                } catch (_) {
+                    return false;
+                }
+            }
+
+            normalizeUrl(input) {
+                if (input === 'about:home') return input;
+                
+                if (!input.startsWith('http://') && !input.startsWith('https://')) {
+                    return 'https://' + input;
+                }
+                return input;
+            }
+
+            getFaviconUrl(url) {
+                if (url === 'about:home') {
+                    return 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏠</text></svg>';
+                }
+                
+                try {
+                    const urlObj = new URL(url);
+                    return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=32`;
+                } catch (e) {
+                    return 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌐</text></svg>';
+                }
+            }
+
+            // Wisp Communication
+            handleWispMessage(data) {
+                if (data.id && this.pendingRequests && this.pendingRequests[data.id]) {
+                    this.pendingRequests[data.id](data);
+                    delete this.pendingRequests[data.id];
+                }
+            }
+
+            // Settings
+            showSettings() {
+                this.elements.settingsModal.classList.add('active');
+            }
+
+            hideSettings() {
+                this.elements.settingsModal.classList.remove('active');
+            }
+
+            saveSettings() {
+                this.wispServer = this.elements.wispServerUrl.value;
+                this.searchEngine = document.getElementById('searchEngine').value;
+                
+                // Reconnect with new server
+                if (this.socket) {
+                    this.socket.close();
+                }
+                this.initWebSocket();
+                
+                this.hideSettings();
+                this.showNotification('Settings saved');
+            }
+
+            loadSettings() {
+                return JSON.parse(localStorage.getItem('wispBrowserSettings') || '{}');
+            }
+
+            saveSettingsToStorage() {
+                localStorage.setItem('wispBrowserSettings', JSON.stringify(this.settings));
+            }
+
+            // Status
+            updateStatus() {
+                setInterval(() => {
+                    const activeTab = this.getActiveTab();
+                    if (activeTab) {
+                        this.elements.currentUrl.textContent = activeTab.url;
+                        this.elements.pageInfo.textContent = activeTab.loading ? 'Loading...' : 
+                                                           activeTab.url.startsWith('https') ? 'Secure' : 'Standard';
+                    }
+                }, 1000);
+            }
+
+            showNotification(message) {
+                // Simple notification (could be enhanced)
+                console.log('Notification:', message);
             }
         }
 
-        // Utility Functions
-        function copyResponse() {
-            const text = responseContent.textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                showNotification('Response copied to clipboard!', 'success');
-            }).catch(err => {
-                showNotification('Failed to copy text', 'error');
-                console.error('Copy failed:', err);
-            });
-        }
+        // Initialize browser when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.wispBrowser = new WispBrowser();
+        });
 
-        function showNotification(message, type = 'success') {
-            notificationText.textContent = message;
-            notification.className = 'notification';
-            notification.classList.add(type === 'error' ? 'error' : 'success');
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-
-        // Example requests for testing
-        function sendExampleRequest() {
-            document.getElementById('endpoint').value = '/api/test';
-            document.getElementById('requestBody').value = JSON.stringify({
-                message: "Hello from Wisp client",
-                timestamp: new Date().toISOString()
-            }, null, 2);
-            
-            document.getElementById('headers').value = JSON.stringify({
-                "Content-Type": "application/json",
-                "X-Requested-With": "WispProxy"
-            }, null, 2);
-        }
-
-        // Expose example function for testing
-        window.sendExampleRequest = sendExampleRequest;
+        // Listen for reload messages from error pages
+        window.addEventListener('message', (event) => {
+            if (event.data === 'reload' && window.wispBrowser) {
+                const activeTab = window.wispBrowser.getActiveTab();
+                if (activeTab) {
+                    window.wispBrowser.refreshPage();
+                }
+            }
+        });
     </script>
 </body>
 </html>
