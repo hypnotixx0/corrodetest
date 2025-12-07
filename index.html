@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wisp Server Interface | Lichology</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f94144;
+            --gray: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--gray);
+        }
+
+        .status-dot.connected {
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, var(--danger), #c0392b);
+        }
+
+        .response-area {
+            margin-top: 20px;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .response-title {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .copy-btn {
+            background: var(--light);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .copy-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .response-content {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 100px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 1px solid #e0e0e0;
+        }
+
+        .success-response {
+            border-left: 4px solid var(--success);
+        }
+
+        .error-response {
+            border-left: 4px solid var(--danger);
+        }
+
+        .method-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .method-btn {
+            padding: 12px;
+            text-align: center;
+            background: var(--light);
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .method-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .method-btn:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--gray);
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 40px;
+        }
+
+        .server-url {
+            background: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            font-family: 'Courier New', monospace;
+            color: var(--primary);
+            font-weight: 600;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            border-left: 4px solid var(--success);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            border-left-color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h1>Wisp Server Proxy</h1>
+            <p class="subtitle">
+                A modern interface for interacting with your Wisp server at lichology.com
+            </p>
+            
+            <div class="server-url">
+                <i class="fas fa-server"></i> wss://lichology.com/wisp/
+            </div>
+        </header>
+
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Connecting...</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Request Card -->
+            <div class="card">
+                <h2><i class="fas fa-paper-plane"></i> Send Request</h2>
+                
+                <div class="method-selector" id="methodSelector">
+                    <div class="method-btn active" data-method="GET">GET</div>
+                    <div class="method-btn" data-method="POST">POST</div>
+                    <div class="method-btn" data-method="PUT">PUT</div>
+                    <div class="method-btn" data-method="DELETE">DELETE</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="endpoint"><i class="fas fa-link"></i> Endpoint</label>
+                    <input type="text" id="endpoint" placeholder="/api/data" value="/">
+                </div>
+
+                <div class="form-group">
+                    <label for="requestBody"><i class="fas fa-edit"></i> Request Body (JSON)</label>
+                    <textarea id="requestBody" placeholder='{"key": "value"}'></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="headers"><i class="fas fa-heading"></i> Headers (JSON)</label>
+                    <textarea id="headers" placeholder='{"Content-Type": "application/json"}'></textarea>
+                </div>
+
+                <button class="btn" id="sendRequest">
+                    <i class="fas fa-rocket"></i> Send Request
+                </button>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Sending request to Wisp server...</p>
+                </div>
+            </div>
+
+            <!-- Response Card -->
+            <div class="card">
+                <h2><i class="fas fa-reply"></i> Server Response</h2>
+                
+                <div class="response-area">
+                    <div class="response-header">
+                        <div class="response-title">
+                            <i class="fas fa-code"></i> Response
+                        </div>
+                        <button class="copy-btn" id="copyResponse">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="response-content" id="responseContent">
+                        Response will appear here...
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <h3><i class="fas fa-history"></i> Request History</h3>
+                    <div id="requestHistory" style="margin-top: 15px;">
+                        <!-- History items will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Wisp Server Proxy Interface | Connected to: wss://lichology.com/wisp/</p>
+            <p>This is a static frontend that proxies requests to your Wisp server</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">
+                <i class="fas fa-shield-alt"></i> All requests are sent directly from your browser to the Wisp server
+            </p>
+        </footer>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <span id="notificationText">Copied to clipboard!</span>
+    </div>
+
+    <script>
+        // Wisp Server Configuration
+        const WISP_SERVER = "wss://lichology.com/wisp/";
+        let socket = null;
+        let isConnected = false;
+        let requestCounter = 0;
+
+        // DOM Elements
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const methodButtons = document.querySelectorAll('.method-btn');
+        const sendRequestBtn = document.getElementById('sendRequest');
+        const responseContent = document.getElementById('responseContent');
+        const copyResponseBtn = document.getElementById('copyResponse');
+        const loadingElement = document.getElementById('loading');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+        const requestHistory = document.getElementById('requestHistory');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeWebSocket();
+            setupEventListeners();
+            loadRequestHistory();
+        });
+
+        // WebSocket Connection
+        function initializeWebSocket() {
+            try {
+                socket = new WebSocket(WISP_SERVER);
+                
+                socket.onopen = function() {
+                    isConnected = true;
+                    statusDot.classList.add('connected');
+                    statusText.textContent = 'Connected to Wisp Server';
+                    showNotification('Connected to Wisp server successfully!', 'success');
+                };
+                
+                socket.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleServerMessage(data);
+                    } catch (e) {
+                        console.error('Error parsing server message:', e);
+                    }
+                };
+                
+                socket.onclose = function() {
+                    isConnected = false;
+                    statusDot.classList.remove('connected');
+                    statusText.textContent = 'Disconnected from Server';
+                    showNotification('Disconnected from Wisp server. Reconnecting...', 'error');
+                    
+                    // Attempt to reconnect after 3 seconds
+                    setTimeout(initializeWebSocket, 3000);
+                };
+                
+                socket.onerror = function(error) {
+                    console.error('WebSocket error:', error);
+                    statusText.textContent = 'Connection Error';
+                    showNotification('Connection error. Check server URL.', 'error');
+                };
+            } catch (error) {
+                console.error('Failed to initialize WebSocket:', error);
+                showNotification('Failed to connect to Wisp server', 'error');
+            }
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Method selector
+            methodButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    methodButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Send request
+            sendRequestBtn.addEventListener('click', sendRequest);
+
+            // Copy response
+            copyResponseBtn.addEventListener('click', copyResponse);
+
+            // Enter key in endpoint field
+            document.getElementById('endpoint').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendRequest();
+            });
+        }
+
+        // Send Request Function
+        function sendRequest() {
+            if (!isConnected) {
+                showNotification('Not connected to server. Please wait...', 'error');
+                return;
+            }
+
+            const method = document.querySelector('.method-btn.active').dataset.method;
+            const endpoint = document.getElementById('endpoint').value.trim() || '/';
+            let requestBody = document.getElementById('requestBody').value.trim();
+            let headers = document.getElementById('headers').value.trim();
+
+            // Validate JSON if provided
+            try {
+                if (requestBody) {
+                    requestBody = JSON.parse(requestBody);
+                } else {
+                    requestBody = {};
+                }
+            } catch (e) {
+                showNotification('Invalid JSON in request body', 'error');
+                return;
+            }
+
+            try {
+                if (headers) {
+                    headers = JSON.parse(headers);
+                } else {
+                    headers = {};
+                }
+            } catch (e) {
+                showNotification('Invalid JSON in headers', 'error');
+                return;
+            }
+
+            // Create request object
+            const request = {
+                id: `req_${Date.now()}_${++requestCounter}`,
+                method: method,
+                endpoint: endpoint,
+                headers: headers,
+                body: requestBody,
+                timestamp: new Date().toISOString()
+            };
+
+            // Show loading
+            loadingElement.style.display = 'block';
+            sendRequestBtn.disabled = true;
+
+            // Send via WebSocket
+            socket.send(JSON.stringify(request));
+
+            // Add to history
+            addToHistory(request);
+
+            // Set timeout for response
+            setTimeout(() => {
+                if (loadingElement.style.display === 'block') {
+                    loadingElement.style.display = 'none';
+                    sendRequestBtn.disabled = false;
+                    showNotification('Request timeout. No response received.', 'error');
+                }
+            }, 30000);
+        }
+
+        // Handle Server Response
+        function handleServerMessage(data) {
+            loadingElement.style.display = 'none';
+            sendRequestBtn.disabled = false;
+
+            // Format the response
+            let formattedResponse;
+            try {
+                formattedResponse = JSON.stringify(data, null, 2);
+            } catch (e) {
+                formattedResponse = String(data);
+            }
+
+            // Update response display
+            responseContent.textContent = formattedResponse;
+            responseContent.className = 'response-content success-response';
+
+            // Update last request in history
+            updateLastHistoryItem(data);
+        }
+
+        // Request History Management
+        function addToHistory(request) {
+            const historyItem = {
+                id: request.id,
+                method: request.method,
+                endpoint: request.endpoint,
+                timestamp: new Date().toLocaleTimeString(),
+                status: 'pending'
+            };
+
+            const historyElement = document.createElement('div');
+            historyElement.className = 'history-item';
+            historyElement.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; 
+                            padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                    <div>
+                        <span style="font-weight: 600; color: ${getMethodColor(request.method)}">
+                            ${request.method}
+                        </span>
+                        <span style="margin-left: 10px;">${request.endpoint}</span>
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--gray);">
+                        ${historyItem.timestamp}
+                        <span id="status-${request.id}" style="margin-left: 10px;">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </div>
+                </div>
+            `;
+
+            // Add click to reuse request
+            historyElement.addEventListener('click', () => {
+                document.querySelector('.method-btn.active').classList.remove('active');
+                document.querySelector(`.method-btn[data-method="${request.method}"]`).classList.add('active');
+                document.getElementById('endpoint').value = request.endpoint;
+                document.getElementById('requestBody').value = JSON.stringify(request.body, null, 2);
+                document.getElementById('headers').value = JSON.stringify(request.headers, null, 2);
+            });
+
+            requestHistory.insertBefore(historyElement, requestHistory.firstChild);
+            
+            // Save to localStorage
+            saveHistoryToStorage();
+        }
+
+        function updateLastHistoryItem(response) {
+            const historyItems = requestHistory.querySelectorAll('.history-item');
+            if (historyItems.length > 0) {
+                const latestItem = historyItems[0];
+                const statusSpan = latestItem.querySelector(`[id^="status-"]`);
+                if (statusSpan) {
+                    statusSpan.innerHTML = '<i class="fas fa-check" style="color: var(--success);"></i>';
+                }
+            }
+        }
+
+        function saveHistoryToStorage() {
+            const items = [];
+            document.querySelectorAll('.history-item').forEach(item => {
+                const method = item.querySelector('span[style*="font-weight: 600"]').textContent.trim();
+                const endpoint = item.querySelector('span:nth-child(2)').textContent.trim();
+                const timestamp = item.querySelector('div > div:nth-child(2)').textContent.split(' ')[0];
+                
+                items.push({ method, endpoint, timestamp });
+            });
+            
+            localStorage.setItem('wispRequestHistory', JSON.stringify(items.slice(0, 10)));
+        }
+
+        function loadRequestHistory() {
+            const savedHistory = localStorage.getItem('wispRequestHistory');
+            if (savedHistory) {
+                try {
+                    const history = JSON.parse(savedHistory);
+                    history.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'history-item';
+                        div.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: center; 
+                                        padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px;">
+                                <div>
+                                    <span style="font-weight: 600; color: ${getMethodColor(item.method)}">
+                                        ${item.method}
+                                    </span>
+                                    <span style="margin-left: 10px;">${item.endpoint}</span>
+                                </div>
+                                <div style="font-size: 0.9rem; color: var(--gray);">
+                                    ${item.timestamp}
+                                    <span style="margin-left: 10px;">
+                                        <i class="fas fa-check" style="color: var(--success);"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                        requestHistory.appendChild(div);
+                    });
+                } catch (e) {
+                    console.error('Error loading history:', e);
+                }
+            }
+        }
+
+        function getMethodColor(method) {
+            switch(method) {
+                case 'GET': return '#2ecc71';
+                case 'POST': return '#3498db';
+                case 'PUT': return '#f39c12';
+                case 'DELETE': return '#e74c3c';
+                default: return 'var(--gray)';
+            }
+        }
+
+        // Utility Functions
+        function copyResponse() {
+            const text = responseContent.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Response copied to clipboard!', 'success');
+            }).catch(err => {
+                showNotification('Failed to copy text', 'error');
+                console.error('Copy failed:', err);
+            });
+        }
+
+        function showNotification(message, type = 'success') {
+            notificationText.textContent = message;
+            notification.className = 'notification';
+            notification.classList.add(type === 'error' ? 'error' : 'success');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Example requests for testing
+        function sendExampleRequest() {
+            document.getElementById('endpoint').value = '/api/test';
+            document.getElementById('requestBody').value = JSON.stringify({
+                message: "Hello from Wisp client",
+                timestamp: new Date().toISOString()
+            }, null, 2);
+            
+            document.getElementById('headers').value = JSON.stringify({
+                "Content-Type": "application/json",
+                "X-Requested-With": "WispProxy"
+            }, null, 2);
+        }
+
+        // Expose example function for testing
+        window.sendExampleRequest = sendExampleRequest;
+    </script>
+</body>
+</html>
